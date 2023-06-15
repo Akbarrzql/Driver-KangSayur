@@ -1,4 +1,5 @@
 import 'package:driver_kangsayur/common/color_value.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/bottom_navigation.dart';
 import 'package:driver_kangsayur/ui/widget/dialog_alert.dart';
 import 'package:flutter/material.dart';
 
@@ -214,7 +215,14 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.only(bottom: 16),
               alignment: Alignment.center,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BottomNavigation(),
+                    ),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   primary: ColorValue.primaryColor,
                   shape: RoundedRectangleBorder(
