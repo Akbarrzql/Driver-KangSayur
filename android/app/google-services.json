@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "233312165526",
+    "project_id": "driverkangsayur",
+    "storage_bucket": "driverkangsayur.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233312165526:android:bd7370127becb0bbb16cb7",
+        "android_client_info": {
+          "package_name": "com.example.driver_kangsayur"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "233312165526-ladhp18hso9j41mivhk4qcqsrh2bgetk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbkE_1lzKqIZkrrMsuJ0NVNIbDNRGf480"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "233312165526-ladhp18hso9j41mivhk4qcqsrh2bgetk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -377,6 +377,7 @@ class _HomePageState extends State<HomePage> {
   void bottom_sheet(){
     final textTheme = Theme.of(context).textTheme;
     showModalBottomSheet(
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(30),
