@@ -2,9 +2,17 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:driver_kangsayur/common/color_value.dart';
+import 'package:driver_kangsayur/tracking/bloc/update_location_bloc.dart';
+import 'package:driver_kangsayur/tracking/event/update_location_event.dart';
+import 'package:driver_kangsayur/tracking/repository/selesai_driver_repository.dart';
+import 'package:driver_kangsayur/tracking/repository/update_location_repository.dart';
+import 'package:driver_kangsayur/tracking/state/update_location_state.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/bottom_navigation.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/model/pesanan_driver_model.dart';
+import 'package:driver_kangsayur/ui/widget/dialog_alert.dart';
 import 'package:driver_kangsayur/ui/widget/main_button.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +27,11 @@ import 'package:slide_action/slide_action.dart';
 import '../contants/app_contans.dart';
 
 class TrackingDriver extends StatefulWidget {
-  const TrackingDriver({Key? key}) : super(key: key);
+  const TrackingDriver({Key? key, required this.transactionCode, required this.latUser, required this.longUser, required this.detailpesananDriverModel}) : super(key: key);
+  final String transactionCode;
+  final double latUser;
+  final double longUser;
+  final Datum detailpesananDriverModel;
 
   @override
   State<TrackingDriver> createState() => _TrackingDriverState();
@@ -28,6 +40,7 @@ class TrackingDriver extends StatefulWidget {
 class _TrackingDriverState extends State<TrackingDriver> {
 
   String? _currentAddress;
+  String? _destinationAddress;
   LatLng _currentPosition = AppConstants.myLocation;
   final List<Marker> _markers = [];
   Marker? _currentMarker;
@@ -35,6 +48,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
   List<LatLng> polylineCoordinates = [];
   PolylinePoints polylinePoints = PolylinePoints();
   Timer? refreshTimer;
+  late UpdateLokasiBloc updateLokasiBloc;
 
   int _duration = 0;
   double _distance = 0;
@@ -109,9 +123,25 @@ class _TrackingDriverState extends State<TrackingDriver> {
     }
   }
 
+  void _getAddressFromLatLngUser() async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(widget.latUser, widget.longUser);
+
+      if (placemarks.isNotEmpty) {
+        Placemark currentPlacemark = placemarks[0];
+        String formattedAddress = "${currentPlacemark.street}, ${currentPlacemark.locality}, ${currentPlacemark.administrativeArea} ${currentPlacemark.postalCode}, ${currentPlacemark.country}";
+        setState(() {
+          _destinationAddress = formattedAddress;
+        });
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void _getCurrentLocation() async {
-    final CollectionReference<Map<String, dynamic>> driverCollection =
-    FirebaseFirestore.instance.collection('drivers');
+    // final CollectionReference<Map<String, dynamic>> driverCollection =
+    // FirebaseFirestore.instance.collection('drivers');
     final location = loc.Location();
     bool serviceEnabled;
     loc.PermissionStatus permissionGranted;
@@ -133,19 +163,20 @@ class _TrackingDriverState extends State<TrackingDriver> {
       }
     }
 
-    await driverCollection.doc('driver1').set({
-      'latitude': _currentPosition.latitude,
-      'longitude': _currentPosition.longitude,
-      'destinationLatitude': AppConstants.myLocation.latitude,
-      'destinationLongitude': AppConstants.myLocation.longitude,
-      'lastUpdate': DateTime.now(),
-    });
+    // await driverCollection.doc('driver1').set({
+    //   'latitude': _currentPosition.latitude,
+    //   'longitude': _currentPosition.longitude,
+    //   'destinationLatitude': AppConstants.myLocation.latitude,
+    //   'destinationLongitude': AppConstants.myLocation.longitude,
+    //   'lastUpdate': DateTime.now(),
+    // });
 
     locationData = await location.getLocation();
     setState(() {
       _currentPosition = LatLng(locationData.latitude!, locationData.longitude!);
     });
     _getAddressFromLatLng();
+    _getAddressFromLatLngUser();
 
     _getPolyline(); // Panggil fungsi untuk mengambil polyline
 
@@ -154,7 +185,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
   }
 
   void _getPolyline() async {
-    String url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${_currentPosition.longitude},${_currentPosition.latitude};${AppConstants.myLocation.longitude},${AppConstants.myLocation.latitude}?overview=full&geometries=geojson&access_token=${AppConstants.mapBoxAccessToken}';
+    String url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${_currentPosition.longitude},${_currentPosition.latitude};${widget.longUser},${widget.latUser}?overview=full&geometries=geojson&access_token=${AppConstants.mapBoxAccessToken}';
 
     final response = await http.get(Uri.parse(url));
 
@@ -214,7 +245,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
   }
 
   Future<void> _getDirections() async {
-    String url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${_currentPosition.longitude},${_currentPosition.latitude};${AppConstants.myLocation.longitude},${AppConstants.myLocation.latitude}?overview=full&geometries=geojson&access_token=${AppConstants.mapBoxAccessToken}&language=id';
+    String url = 'https://api.mapbox.com/directions/v5/mapbox/driving/${_currentPosition.longitude},${_currentPosition.latitude};${widget.longUser},${widget.latUser}?overview=full&geometries=geojson&access_token=${AppConstants.mapBoxAccessToken}&language=id';
 
     final response = await http.get(Uri.parse(url));
 
@@ -240,10 +271,28 @@ class _TrackingDriverState extends State<TrackingDriver> {
     // TODO: implement initState
     super.initState();
     _getAddressFromLatLng();
+    _getAddressFromLatLngUser();
     _getCurrentLocation();
     _updateMarkerAndPolyline();
-    refreshTimer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+    _getDirections();
+    _updatePolyline();
+    updateLokasiBloc = UpdateLokasiBloc(updateLocationRepository: UpdateLocationRepository(), selesairepository: Selesairepository())..add(
+      UpdateLocation(
+        latitude: _currentPosition.latitude.toString(),
+        longitude: _currentPosition.longitude.toString(),
+        transactionCode: widget.transactionCode,
+      ),);
+    refreshTimer = Timer.periodic(const Duration(seconds: 30), (Timer t) {
       setState(() {
+        updateLokasiBloc = UpdateLokasiBloc(updateLocationRepository: UpdateLocationRepository(), selesairepository: Selesairepository())..add(
+            UpdateLocation(
+              latitude: _currentPosition.latitude.toString(),
+              longitude: _currentPosition.longitude.toString(),
+              transactionCode: widget.transactionCode,
+            ),);
+        if (_distance < 50) {
+          showDialogLocation();
+        }
         _getDirections();
         _getCurrentLocation();
         _updatePolyline();
@@ -267,7 +316,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
             FlutterMap(
               options: MapOptions(
                 center: AppConstants.myLocation,
-                zoom: 14.0,
+                zoom: 18.0,
                 onTap: _handleTap,
               ),
               mapController: mapController,
@@ -295,10 +344,10 @@ class _TrackingDriverState extends State<TrackingDriver> {
                     Marker(
                       width: 80.0,
                       height: 80.0,
-                      point: AppConstants.myLocation,
+                      point: LatLng(widget.latUser, widget.longUser),
                       builder: (ctx) => const Icon(
                         Icons.location_pin,
-                        size: 50,
+                        size: 32,
                         color: ColorValue.quaternaryColor,
                       ),
                     ),
@@ -317,11 +366,9 @@ class _TrackingDriverState extends State<TrackingDriver> {
             ),
             //center Positioned Widget
             Positioned(
-              //center top
               top: 0,
               left: 0,
               right: 0,
-              //terakhir update
               child: Container(
                 height: 100,
                 padding: const EdgeInsets.all(10.0),
@@ -350,7 +397,11 @@ class _TrackingDriverState extends State<TrackingDriver> {
                         //height and with
                         padding: const EdgeInsets.all(5),
                         onPressed: () {
-                          Navigator.pop(context);
+                          showErrorDialog(
+                            context,
+                            'Kamu tidak bisa membatalkan pesanan saat sedang dalam perjalanan',
+                            'Membatalkan Pesanan'
+                          );
                         },
                         icon: const Icon(
                           Icons.arrow_back,
@@ -434,158 +485,209 @@ class _TrackingDriverState extends State<TrackingDriver> {
                       ],
                     ),
                     child: SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        children: [
-                          cardCustomer('Alwan Athallah Mumtaz', 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
-                          const SizedBox(height: 20),
-                          cardAlamat('Kebun Teh Bu Darmi, Jl Panjaitan 02', 'Jl Kebayoran 23 Jakarta Pusat'),
-                          const SizedBox(height: 20),
-                          Container(
-                            height: 170,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(
-                              color: ColorValue.bluePricecolor,
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(
-                                color: ColorValue.hintColor,
-                                width: 0.5,
+                        controller: scrollController,
+                        child: Column(
+                          children: [
+                            cardCustomer(widget.detailpesananDriverModel.namaPemesan, 'https://kangsayur.nitipaja.online${widget.detailpesananDriverModel.userProfile}'),
+                            const SizedBox(height: 20),
+                            cardAlamat(_destinationAddress == null ? 'Mencari alamat...' : _destinationAddress!, _currentAddress == null ? 'Mencari alamat...' : _currentAddress!,),
+                            const SizedBox(height: 20),
+                            Container(
+                              height: 170,
+                              width: MediaQuery.of(context).size.width,
+                              decoration: BoxDecoration(
+                                color: ColorValue.bluePricecolor,
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  color: ColorValue.hintColor,
+                                  width: 0.5,
+                                ),
                               ),
-                            ),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  height: 120,
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      topRight: Radius.circular(15),
-                                    ),
-                                    border: Border.all(
-                                      color: ColorValue.hintColor,
-                                      width: 0.5,
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 120,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        topRight: Radius.circular(15),
+                                      ),
+                                      border: Border.all(
+                                        color: ColorValue.hintColor,
+                                        width: 0.5,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
-                                  child: ListView.builder(
-                                    itemCount: 4,
-                                    itemBuilder: (context, index) {
-                                      return Container(
-                                        margin: const EdgeInsets.only(bottom: 10),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 30, right: 30, top: 10),
+                                    child: ListView.builder(
+                                      itemCount: widget.detailpesananDriverModel.barangPesanan.length,
+                                      itemBuilder: (context, index) {
+                                        return Column(
                                           children: [
-                                            Text(
-                                              '${index + 1}. Jenis Barang',
-                                              style: textTheme.bodyText1!.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                color: ColorValue.neutralColor,
-                                                fontSize: 14,
+                                            Container(
+                                              margin: const EdgeInsets.only(bottom: 10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    widget.detailpesananDriverModel.barangPesanan[index].namaProduk,
+                                                    style: textTheme.bodyText1!.copyWith(
+                                                      fontWeight: FontWeight.w600,
+                                                      color: ColorValue.neutralColor,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    NumberFormat.currency(
+                                                        locale: 'id',
+                                                        symbol: 'Rp ',
+                                                        decimalDigits: 0)
+                                                        .format(widget.detailpesananDriverModel.barangPesanan[index].hargaVariant),
+                                                    style: textTheme.bodyText1!.copyWith(
+                                                      fontWeight: FontWeight.w600,
+                                                      color: ColorValue.neutralColor,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
-                                            Text(
-                                              'Rp 15.000',
-                                              style: textTheme.bodyText1!.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                                color: ColorValue.neutralColor,
-                                                fontSize: 14,
+                                            Container(
+                                              margin: const EdgeInsets.only(bottom: 10),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    'Ongkos Kirim',
+                                                    style: textTheme.bodyText1!.copyWith(
+                                                      fontWeight: FontWeight.w600,
+                                                      color: ColorValue.neutralColor,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    NumberFormat.currency(
+                                                        locale: 'id',
+                                                        symbol: 'Rp ',
+                                                        decimalDigits: 0)
+                                                        .format(widget.detailpesananDriverModel.tagihan.ongkosKirim),
+                                                    style: textTheme.bodyText1!.copyWith(
+                                                      fontWeight: FontWeight.w600,
+                                                      color: ColorValue.neutralColor,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ],
-                                        ),
-                                      );
-                                    },
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
+                                  Container(
+                                    padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
+                                    alignment: Alignment.bottomCenter,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Total',
+                                          style: textTheme.bodyText1!.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: ColorValue.tertiaryColor,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Text(
+                                          NumberFormat.currency(
+                                              locale: 'id',
+                                              symbol: 'Rp ',
+                                              decimalDigits: 0)
+                                              .format(widget.detailpesananDriverModel.total),
+                                          style: textTheme.bodyText1!.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
                                 Container(
-                                  padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
-                                  alignment: Alignment.bottomCenter,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Total',
-                                        style: textTheme.bodyText1!.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorValue.tertiaryColor,
-                                          fontSize: 14,
-                                        ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                                    width: MediaQuery.of(context).size.width * 0.55,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: ColorValue.hintColor,
+                                        width: 0.5,
                                       ),
-                                      Text(
-                                        'Rp 60.000',
-                                        style: textTheme.bodyText1!.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
+                                    ),
+                                    child: Text(
+                                      'Jenis Pembayaran :',
+                                      style: textTheme.bodyText1!.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorValue.neutralColor,
+                                        fontSize: 14,
                                       ),
-                                    ],
-                                  ),
+                                    )
+                                ),
+                                const Spacer(),
+                                Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      border: Border.all(
+                                        color: ColorValue.hintColor,
+                                        width: 0.5,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          'Tunai',
+                                          style: textTheme.bodyText1!.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color: ColorValue.neutralColor,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        const Icon(
+                                          Icons.money,
+                                          size: 24,
+                                          color: ColorValue.primaryColor,
+                                        ),
+                                      ],
+                                    )
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                                  width: MediaQuery.of(context).size.width * 0.55,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: ColorValue.hintColor,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Jenis Pembayaran :',
-                                    style: textTheme.bodyText1!.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                      color: ColorValue.neutralColor,
-                                      fontSize: 14,
-                                    ),
-                                  )
-                              ),
-                              const Spacer(),
-                              Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    border: Border.all(
-                                      color: ColorValue.hintColor,
-                                      width: 0.5,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Tunai',
-                                        style: textTheme.bodyText1!.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                          color: ColorValue.neutralColor,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Icon(
-                                        Icons.money,
-                                        size: 24,
-                                        color: ColorValue.primaryColor,
-                                      ),
-                                    ],
-                                  )
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          slideButton(),
-                        ],
-                      )
+                            const SizedBox(height: 20),
+                            slideButton(
+                              context,
+                              navigate: () {
+                                updateLokasiBloc.add(SelesaiPengiriman(
+                                  widget.detailpesananDriverModel.barangPesanan[0].userId.toString(),
+                                  widget.detailpesananDriverModel.barangPesanan[0].storeId.toString(),
+                                  widget.detailpesananDriverModel.barangPesanan[0].transactionCode.toString(),
+                                ));
+                                print(widget.detailpesananDriverModel.barangPesanan[0].transactionCode.toString());
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const BottomNavigation()), (route) => false);
+                              },
+                            ),
+                          ],
+                        )
                     ),
                   );
                 },
@@ -597,7 +699,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
     );
   }
 
-  Widget slideButton(){
+  Widget slideButton(BuildContext context, {VoidCallback? navigate}){
     final textTheme = Theme.of(context).textTheme;
     return SlideAction(
       trackBuilder: (context, state) {
@@ -650,12 +752,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
         // Async operation
         await Future.delayed(
           const Duration(seconds: 2),
-              () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const BottomNavigation(),
-            ),
-          ),
+              navigate
         );
       },
     );
@@ -681,8 +778,8 @@ class _TrackingDriverState extends State<TrackingDriver> {
             margin: const EdgeInsets.only(top: 35, bottom: 10, left: 10),
             child: Column(
               children: [
-                Stack(
-                  children: const [
+                const Stack(
+                  children: [
                     CircleAvatar(
                       radius: 10,
                       backgroundColor: ColorValue.primaryColor,
@@ -715,8 +812,8 @@ class _TrackingDriverState extends State<TrackingDriver> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Stack(
-                  children: const [
+                const Stack(
+                  children: [
                     CircleAvatar(
                       radius: 10,
                       backgroundColor: ColorValue.tertiaryColor,
@@ -755,15 +852,15 @@ class _TrackingDriverState extends State<TrackingDriver> {
                           fontSize: 12
                       ),
                     ),
-                     const SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     SizedBox(
                       width: 300,
                       child: Text(
                         penjemputan.length > 70 ? '${penjemputan.substring(0, 70)}...' : penjemputan,
                         style: textTheme.bodyText2!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: ColorValue.neutralColor,
-                          fontSize: 14
+                            fontWeight: FontWeight.w600,
+                            color: ColorValue.neutralColor,
+                            fontSize: 14
                         ),
                       ),
                     ),
@@ -979,6 +1076,38 @@ class _TrackingDriverState extends State<TrackingDriver> {
           ),
         ),
       ],
+    );
+  }
+
+  Future showDialogLocation(){
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text('Apakah kamu sudah sampai di lokasi?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Belum'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const BottomNavigation(),
+                  ),
+                );
+              },
+              child: const Text('Sudah'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

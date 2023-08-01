@@ -1,4 +1,5 @@
 import 'package:driver_kangsayur/common/color_value.dart';
+import 'package:driver_kangsayur/ui/auth/login_page.dart';
 import 'package:driver_kangsayur/ui/widget/main_button.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +47,14 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 20,),
                         _listData("Plat Nomor", "B 1234 ABC"),
                         const SizedBox(height: 20,),
-                        main_button('Keluar', context, onPressed: (){}),
+                        main_button('Keluar', context, onPressed: (){
+                          Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const LoginPage()),
+                                  (route) => false
+                          );
+                        }),
                       ],
                     ),
                   ),
