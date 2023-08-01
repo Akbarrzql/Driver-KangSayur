@@ -1,5 +1,5 @@
 import 'package:driver_kangsayur/ui/bottom_navigation/item/chat.dart';
-import 'package:driver_kangsayur/ui/bottom_navigation/item/home.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/home.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/profile.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/riwayat.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +21,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
 
   final _tabs = [
     const HomePage(),
-    const ChatPage(),
     const RiwayatPage(),
     const ProfilePage(),
   ];
@@ -78,14 +77,6 @@ class _BottomNavigationState extends State<BottomNavigation> {
                 color: ColorValue.primaryColor,
               ),
               label: 'Pengiriman',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat_outlined),
-              activeIcon: Icon(
-                Icons.chat,
-                color: ColorValue.primaryColor,
-              ),
-              label: 'Chat',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.receipt_long_outlined),
