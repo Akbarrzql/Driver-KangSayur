@@ -2,6 +2,8 @@ import 'package:driver_kangsayur/ui/bottom_navigation/item/home/event/pesanan_dr
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/home_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/konfirmasi_driver_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/state/pesanan_driver_state.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/profile/event/profile_driver_event.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/profile/repository/profile_driver_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 

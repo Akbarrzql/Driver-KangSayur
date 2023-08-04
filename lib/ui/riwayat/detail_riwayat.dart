@@ -1,10 +1,13 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:driver_kangsayur/common/color_value.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/riwayat/model/riwayat_model.dart';
 import 'package:driver_kangsayur/ui/widget/main_button.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DetailRiwayatPage extends StatefulWidget {
-  const DetailRiwayatPage({Key? key}) : super(key: key);
+  const DetailRiwayatPage({Key? key, required this.data}) : super(key: key);
+  final Datum2 data;
 
   @override
   State<DetailRiwayatPage> createState() => _DetailRiwayatPageState();
@@ -47,32 +50,21 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
+                       CircleAvatar(
                         radius: 32,
-                        backgroundColor: ColorValue.primaryColor,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                        ),
+                        backgroundImage: NetworkImage(
+                        'https://kangsayur.nitipaja.online${widget.data.userProfile}'),
                       ),
                       const SizedBox(width: 16),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Nama',
+                            widget.data.namaPemesan,
                             style: textTheme.bodyText2!.copyWith(
                               color: ColorValue.neutralColor,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          Text(
-                            'Nama Driver',
-                            style: textTheme.bodyText2!.copyWith(
-                              color: ColorValue.neutralColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -91,7 +83,7 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      cardAlamat('Kebun Teh Bu Darmi, Jl Panjaitan 02', 'Jl Kebayoran 23 Jakarta Pusat'),
+                      cardAlamat(widget.data.alamatToko, widget.data.alamat),
                       const SizedBox(height: 20),
                       Text(
                         'Detail Pembayaran',
@@ -107,29 +99,63 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: 3,
+                  itemCount: widget.data.barangPesanan.length,
                   itemBuilder: (context, index) {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       margin: const EdgeInsets.only(top: 10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
-                          Text(
-                            'Kangkung',
-                            style: textTheme.bodyText2!.copyWith(
-                              color: ColorValue.neutralColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                widget.data.barangPesanan[index].namaProduk,
+                                style: textTheme.bodyText2!.copyWith(
+                                  color: ColorValue.neutralColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                NumberFormat.currency(
+                                    locale: 'id',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                    .format(widget.data.barangPesanan[index].hargaVariant),
+                                style: textTheme.bodyText2!.copyWith(
+                                  color: ColorValue.neutralColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'Rp 10.000',
-                            style: textTheme.bodyText2!.copyWith(
-                              color: ColorValue.neutralColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Ongkos Kirim",
+                                style: textTheme.bodyText2!.copyWith(
+                                  color: ColorValue.neutralColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                NumberFormat.currency(
+                                    locale: 'id',
+                                    symbol: 'Rp ',
+                                    decimalDigits: 0)
+                                    .format(widget.data.tagihan.ongkosKirim),
+                                style: textTheme.bodyText2!.copyWith(
+                                  color: ColorValue.neutralColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -163,7 +189,11 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
                             ),
                           ),
                           Text(
-                            'Rp 1.000.000',
+                            NumberFormat.currency(
+                                locale: 'id',
+                                symbol: 'Rp ',
+                                decimalDigits: 0)
+                                .format(widget.data.total),
                             style: textTheme.bodyText2!.copyWith(
                               color: ColorValue.neutralColor,
                               fontSize: 14,

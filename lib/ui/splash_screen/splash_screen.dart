@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:driver_kangsayur/common/color_value.dart';
 import 'package:driver_kangsayur/ui/auth/login_page.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/bottom_navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -18,23 +20,23 @@ class _SplashScreenState extends State<SplashScreen> {
   double _opacity = 1.0;
   double _circleSize = 800.0;
 
-  // void getToken() async {
-  //   SharedPreferences pref = await SharedPreferences.getInstance();
-  //   String? token = pref.getString('token');
-  //   if (token != null) {
-  //     Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => const BottomNavigation(),
-  //         ));
-  //   } else if (token == null) {
-  //     Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(
-  //           builder: (context) => const OnboardingScreen(),
-  //         ));
-  //   }
-  // }
+  void getToken() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? token = pref.getString('token');
+    if (token != null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const BottomNavigation(),
+          ));
+    } else if (token == null) {
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(),
+          ));
+    }
+  }
 
   @override
   void initState() {
@@ -48,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen> {
         _circleSize = 300.0;
       });
       Timer(const Duration(seconds: 3), (){
-        // getToken();
+        getToken();
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

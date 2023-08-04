@@ -16,7 +16,7 @@ class UpdateLocationRepository extends UpdateLocationPageRepository{
     final responseProduk = await http.get(Uri.parse("${AppConstants.baseUrl}driver/order/updateLoc?lat=$latitude&long=$longitude&transaction_code=$transactionCode"),
       headers: {
         'Accept': 'application/json',
-        'Authorization': 'Bearer U07US5u8O1Y6FTJtRMttkTGeW5l9apKzyB5kcD4t',
+        'Authorization': 'Bearer $token',
       },);
 
     print(responseProduk.body);

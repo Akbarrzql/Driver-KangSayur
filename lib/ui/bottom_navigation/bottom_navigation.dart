@@ -1,7 +1,7 @@
 import 'package:driver_kangsayur/ui/bottom_navigation/item/chat.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/home.dart';
-import 'package:driver_kangsayur/ui/bottom_navigation/item/profile.dart';
-import 'package:driver_kangsayur/ui/bottom_navigation/item/riwayat.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/profile/profile.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/riwayat/riwayat.dart';
 import 'package:flutter/material.dart';
 import '../../common/color_value.dart';
 

@@ -181,7 +181,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
     _getPolyline(); // Panggil fungsi untuk mengambil polyline
 
     // Memindahkan peta ke lokasi pengguna atau marker
-    mapController.move(_currentPosition, 14.0); // Sesuaikan level zoom jika perlu
+    mapController.move(_currentPosition, 18.0); // Sesuaikan level zoom jika perlu
   }
 
   void _getPolyline() async {
@@ -383,7 +383,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
                       color: Colors.black26,
                       spreadRadius: 0,
                       blurRadius: 10,
-                      offset: const Offset(0, 3), // changes position of shadow
+                      offset: Offset(0, 3), // changes position of shadow
                     ),
                   ],
                 ),
