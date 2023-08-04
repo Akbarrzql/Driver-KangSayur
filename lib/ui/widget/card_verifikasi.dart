@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import '../../common/color_value.dart';
 
 class CardVerifikasi extends StatelessWidget {
-  CardVerifikasi({Key? key, required this.jenisVerifikasiProduk, required this.tanggalVerifikasiProduk, required this.namaVerifikasiProduk , required this.descVerifikasiProduk, required this.statusVerifikasiProduk, required this.onPressed}) : super(key: key);
+  CardVerifikasi({Key? key, required this.jenisVerifikasiProduk, required this.tanggalVerifikasiProduk, required this.namaVerifikasiProduk , required this.descVerifikasiProduk,required this.gambarVerifikasiProduk, required this.statusVerifikasiProduk, required this.onPressed}) : super(key: key);
   final String jenisVerifikasiProduk;
   final String tanggalVerifikasiProduk;
   final String namaVerifikasiProduk;
   final String descVerifikasiProduk;
-  // final String gambarVerifikasiProduk;
+  final String gambarVerifikasiProduk;
   final String statusVerifikasiProduk;
   final void Function()? onPressed;
 
@@ -81,7 +81,7 @@ class CardVerifikasi extends StatelessWidget {
                         color: statusVerifikasiProduk == "Pending" ? const Color(0xFFFDF2B2) : statusVerifikasiProduk == "Ditolak" ? const Color(0xFFFFEAEF) : const Color(0xFFD7FEDF)
                     ),
                     child: Text(
-                      statusVerifikasiProduk == "Pending" ? "Diproses" : statusVerifikasiProduk == "Rejected" ? "Ditolak" : "Terverifikasi",
+                      statusVerifikasiProduk == "Pending" ? "Diproses" : statusVerifikasiProduk == "Rejected" ? "Ditolak" : "Selesai",
                       style: Theme.of(context).textTheme.subtitle1!.copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 10,
@@ -108,7 +108,7 @@ class CardVerifikasi extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       image:  DecorationImage(
-                        image: NetworkImage('https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
+                        image: NetworkImage(gambarVerifikasiProduk),
                         fit: BoxFit.cover,
                       ),
                     ),

@@ -1,7 +1,14 @@
 import 'package:driver_kangsayur/common/color_value.dart';
+import 'package:driver_kangsayur/ui/auth/bloc/login_bloc.dart';
+import 'package:driver_kangsayur/ui/auth/event/login_event.dart';
+import 'package:driver_kangsayur/ui/auth/repository/login_repository.dart';
+import 'package:driver_kangsayur/ui/auth/state/login_state.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/bottom_navigation.dart';
+import 'package:driver_kangsayur/ui/widget/custom_textfield.dart';
 import 'package:driver_kangsayur/ui/widget/dialog_alert.dart';
+import 'package:driver_kangsayur/validator/input_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -30,162 +37,140 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(
-                  height: 24,
-                ),
-                Text(
-                  'Masuk',
-                  style: Theme.of(context).textTheme.headline5!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: ColorValue.secondaryColor,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                SizedBox(
-                  width: 200,
-                  child: Text(
-                    "Selamat datang, masuk untuk akses anda ke aplikasi driver KangSayur",
-                    style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: const Color(0xff1E1E1E),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: ColorValue.hintColor,
-                      width: 0.5,
-                    ),
-                  ),
+    return BlocProvider(
+        create: (context) => LoginPageBloc(loginRepository: LoginRepository()),
+        child: Scaffold(
+          body: BlocConsumer<LoginPageBloc, LoginPageState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              if(state is InitialLoginPageState){
+                return SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Email',
-                        hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
-                          color: ColorValue.hintColor,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: ColorValue.hintColor,
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: TextFormField(
-                      controller: _passwordController,
-                      obscureText: isPasswordVisible,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Password',
-                        hintStyle: Theme.of(context).textTheme.bodyText1!.copyWith(
-                          color: ColorValue.hintColor,
-                        ),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isPasswordVisible = !isPasswordVisible;
-                            });
-                          },
-                          icon: Icon(
-                            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                            color: ColorValue.hintColor,
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(
+                            height: 24,
                           ),
-                        ),
+                          Text(
+                            'Masuk',
+                            style: Theme.of(context).textTheme.headline5!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: ColorValue.secondaryColor,
+                            ),
+                            textAlign: TextAlign.start,
+                          ),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          SizedBox(
+                            width: 200,
+                            child: Text(
+                              "Selamat datang, masuk untuk akses anda ke aplikasi driver KangSayur",
+                              style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: const Color(0xff1E1E1E),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 30,
+                          ),
+                          CustomTextFormField(
+                            controller: _emailController,
+                            label: 'Email',
+                            textInputType: TextInputType.emailAddress,
+                            validator: (value) =>  InputValidator.emailValidator(value),
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          CustomTextFormField(
+                            controller: _passwordController,
+                            label: 'Password',
+                            isPassword: true,
+                            textInputType: TextInputType.visiblePassword,
+                            validator: (value) =>  InputValidator.passwordValidator(value),
+                          ),
+                          const SizedBox(
+                            height: 2,
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {},
+                              child: Text(
+                                'Lupa Password?',
+                                style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                                  color: ColorValue.secondaryColor,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  BlocProvider.of<LoginPageBloc>(context).add(LoginButtonPressed(
+                                    email: _emailController.text,
+                                    password: _passwordController.text,
+                                  ));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      backgroundColor: Colors.red,
+                                      margin: EdgeInsets.fromLTRB(24, 0, 24, 80),
+                                      behavior: SnackBarBehavior.floating,
+                                      content: Text('Terdapat kesalahan pada inputan'),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: ColorValue.primaryColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                              ),
+                              child: Text(
+                                'Masuk',
+                                style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 2,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: Text(
-                      'Lupa Password?',
-                      style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        color: ColorValue.secondaryColor,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if(_emailController.text.isEmpty) {
-                        setState(() {
-                          _emailHasError = true;
-                        });
-                        showErrorDialog(context, "Perhatian" ,'Email tidak boleh kosong');
-                      } else if(!_isValidEmail(_emailController.text)) {
-                        setState(() {
-                          _emailHasError = true;
-                        });
-                        showErrorDialog(context, "Perhatian" ,'Email tidak valid');
-                      } else if(_passwordController.text.isEmpty) {
-                        showErrorDialog(context, 'Perhatian', 'Password tidak boleh kosong');
-                      } else if(_passwordController.text.length < 6) {
-                        showErrorDialog(context, 'perhatian', 'Password minimal 6 karakter');
-                      } else {
-                        showDialogLogin(context, 'Selamat Datang, Sudah siap untuk mengantar pesanan?');
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      primary: ColorValue.primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: Text(
-                      'Masuk',
-                      style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+                );
+              } else if (state is LoginPageLoading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              } else if (state is LoginPageLoaded){
+                return const BottomNavigation();
+              } else if (state is LoginPageError){
+                return const Center(
+                  child: Text('Terdapat kesalahan saat login'),
+                );
+              } else {
+                return const Center(
+                  child: Text('Terdapat kesalahan saat login'),
+                );
+              }
+            },
+          )
         ),
-      ),
-    );
+      );
   }
 
   void showDialogLogin(BuildContext context, String message) {
