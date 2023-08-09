@@ -108,7 +108,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
                           ),
                           const SizedBox(height: 24,),
                           filteredRiwayatDriver.isEmpty ? Center(
-                            //lotie loading
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
@@ -134,7 +133,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                             itemCount: filteredRiwayatDriver.length,
                             itemBuilder: (BuildContext context, int index) {
                               return CardVerifikasi(
-                                jenisVerifikasiProduk: 'Bahan Pokok',
+                                jenisVerifikasiProduk: filteredRiwayatDriver[index].kategori,
                                 tanggalVerifikasiProduk: filteredRiwayatDriver[index].dipesan,
                                 namaVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].namaProduk,
                                 descVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].variantDesc,
@@ -254,7 +253,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                             itemCount: filteredRiwayatDriver.length,
                             itemBuilder: (BuildContext context, int index) {
                               return CardVerifikasi(
-                                jenisVerifikasiProduk: 'Bahan Pokok',
+                                jenisVerifikasiProduk: filteredRiwayatDriver[index].kategori,
                                 tanggalVerifikasiProduk: filteredRiwayatDriver[index].dipesan,
                                 namaVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].namaProduk,
                                 descVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].variantDesc,

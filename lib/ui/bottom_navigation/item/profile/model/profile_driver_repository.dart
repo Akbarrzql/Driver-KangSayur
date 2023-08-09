@@ -37,7 +37,7 @@ class Data {
   final int driverId;
   final String photo;
   final String name;
-  final dynamic phoneNumber;
+  final int phoneNumber;
   final String jenisKendaraan;
   final String nomorPolisi;
 

@@ -35,14 +35,6 @@ class CardVerifikasi extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(15, 10, 15, 0),
                   child: Row(
                     children: [
-                      Container(
-                        alignment: Alignment.topCenter,
-                        child: const CircleAvatar(
-                          radius: 24,
-                          backgroundImage: NetworkImage(
-                              'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
-                        ),
-                      ),
                       const SizedBox(width: 10,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

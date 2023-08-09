@@ -98,19 +98,19 @@ class _LoginPageState extends State<LoginPage> {
                           const SizedBox(
                             height: 2,
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {},
-                              child: Text(
-                                'Lupa Password?',
-                                style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                                  color: ColorValue.secondaryColor,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ),
+                          // Align(
+                          //   alignment: Alignment.centerRight,
+                          //   child: TextButton(
+                          //     onPressed: () {},
+                          //     child: Text(
+                          //       'Lupa Password?',
+                          //       style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                          //         color: ColorValue.secondaryColor,
+                          //         fontWeight: FontWeight.w800,
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           const Spacer(),
                           Container(
                             child: ElevatedButton(

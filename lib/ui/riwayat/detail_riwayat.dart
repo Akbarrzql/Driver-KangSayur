@@ -270,8 +270,8 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
             margin: const EdgeInsets.only(top: 35, bottom: 10, left: 10),
             child: Column(
               children: [
-                Stack(
-                  children: const [
+                const Stack(
+                  children: [
                     CircleAvatar(
                       radius: 10,
                       backgroundColor: ColorValue.primaryColor,
@@ -304,8 +304,8 @@ class _DetailRiwayatPageState extends State<DetailRiwayatPage> {
                   ),
                 ),
                 const SizedBox(height: 5),
-                Stack(
-                  children: const [
+                const Stack(
+                  children: [
                     CircleAvatar(
                       radius: 10,
                       backgroundColor: ColorValue.tertiaryColor,
