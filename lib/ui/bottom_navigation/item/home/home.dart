@@ -2,6 +2,8 @@ import 'package:driver_kangsayur/common/color_value.dart';
 import 'package:driver_kangsayur/tracking/tracking_driver.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/bloc/pesanan_driver_bloc.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/event/pesanan_driver_model.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/item/map_view.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/model/pesanan_driver_model.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/home_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/konfirmasi_driver_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/state/pesanan_driver_state.dart';
@@ -268,7 +270,7 @@ class _HomePageState extends State<HomePage>  {
                                             Icons.search,
                                             color: ColorValue.hintColor,
                                           ),
-                                          hintText: 'Cari alamat pengantaran',
+                                          hintText: 'Cari Nama Pemesan',
                                           hintStyle: textTheme.subtitle1!.copyWith(
                                               fontWeight: FontWeight.w400,
                                               fontSize: 14,
@@ -290,9 +292,19 @@ class _HomePageState extends State<HomePage>  {
                                           width: 1,
                                         ),
                                       ),
-                                      child: const Icon(
-                                        Icons.map_outlined,
-                                        color: ColorValue.hintColor,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const MapViewDriver(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Icon(
+                                          Icons.map_outlined,
+                                          color: ColorValue.hintColor,
+                                        ),
                                       ),
                                     ),
                                   ],

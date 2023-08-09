@@ -9,6 +9,7 @@ import 'package:driver_kangsayur/tracking/repository/update_location_repository.
 import 'package:driver_kangsayur/tracking/state/update_location_state.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/bottom_navigation.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/model/pesanan_driver_model.dart';
+import 'package:driver_kangsayur/ui/chat/detail_chat.dart';
 import 'package:driver_kangsayur/ui/widget/dialog_alert.dart';
 import 'package:driver_kangsayur/ui/widget/main_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -22,7 +23,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:location/location.dart' as loc;
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
-import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:slide_action/slide_action.dart';
 import '../contants/app_contans.dart';
 
@@ -282,7 +283,7 @@ class _TrackingDriverState extends State<TrackingDriver> {
         longitude: _currentPosition.longitude.toString(),
         transactionCode: widget.transactionCode,
       ),);
-    refreshTimer = Timer.periodic(const Duration(seconds: 30), (Timer t) {
+    refreshTimer = Timer.periodic(const Duration(seconds: 5), (Timer t) {
       setState(() {
         updateLokasiBloc = UpdateLokasiBloc(updateLocationRepository: UpdateLocationRepository(), selesairepository: Selesairepository())..add(
             UpdateLocation(
@@ -488,9 +489,9 @@ class _TrackingDriverState extends State<TrackingDriver> {
                         controller: scrollController,
                         child: Column(
                           children: [
-                            cardCustomer(widget.detailpesananDriverModel.namaPemesan, 'https://kangsayur.nitipaja.online${widget.detailpesananDriverModel.userProfile}'),
+                            cardCustomer(widget.detailpesananDriverModel.namaPemesan.toString(), 'https://kangsayur.nitipaja.online${widget.detailpesananDriverModel.userProfile}'),
                             const SizedBox(height: 20),
-                            cardAlamat(_destinationAddress == null ? 'Mencari alamat...' : _destinationAddress!, _currentAddress == null ? 'Mencari alamat...' : _currentAddress!,),
+                            cardAlamat(_currentAddress == null ? 'Mencari alamat...' : _currentAddress!, _destinationAddress == null ? 'Mencari alamat...' : _destinationAddress!,),
                             const SizedBox(height: 20),
                             Container(
                               height: 170,
@@ -1005,7 +1006,14 @@ class _TrackingDriverState extends State<TrackingDriver> {
                                     alignment: Alignment.center,
                                     child: IconButton(
                                       padding: EdgeInsets.zero,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => const DetailChatPage(),
+                                          ),
+                                        );
+                                      },
                                       icon: const Icon(
                                         Icons.message,
                                         color: ColorValue.primaryColor,
@@ -1040,7 +1048,9 @@ class _TrackingDriverState extends State<TrackingDriver> {
                                     alignment: Alignment.center,
                                     child: IconButton(
                                       padding: EdgeInsets.zero,
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        launch('tel://0${widget.detailpesananDriverModel.nomorTelfon}');
+                                      },
                                       icon: const Icon(
                                         Icons.call,
                                         color: ColorValue.primaryColor,

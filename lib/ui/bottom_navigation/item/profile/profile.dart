@@ -29,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return shimmerProfile();
           } else if (state is ProfileDriverPageSuccess){
             final data = state.profileDriverModel;
+            final mainContext = context;
             return Scaffold(
               backgroundColor: ColorValue.secondaryColor,
               body: SafeArea(
@@ -56,20 +57,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               children: [
                                 _listData("Nama Driver", data.data.name),
                                 const SizedBox(height: 20,),
-                                _listData("Nomor Telepon", data.data.phoneNumber ?? "Belum ada nomor telepon"),
+                                _listData("Nomor Telepon", "+62${data.data.phoneNumber.toString()}"),
                                 const SizedBox(height: 20,),
                                 _listData("Kendaraan", data.data.jenisKendaraan),
                                 const SizedBox(height: 20,),
                                 _listData("Plat Nomor", data.data.nomorPolisi),
                                 const SizedBox(height: 20,),
                                 main_button('Keluar', context, onPressed: (){
-                                  BlocProvider.of<ProfileDriverBloc>(context).add(GetLogoutDriver());
-                                  Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => const LoginPage()),
-                                          (route) => false
-                                  );
+                                  logout(context, mainContext);
                                 }),
                               ],
                             ),
@@ -181,6 +176,34 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void logout(BuildContext context, BuildContext context2) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Apakah anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              BlocProvider.of<ProfileDriverBloc>(context2).add(GetLogoutDriver());
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const LoginPage()),
+                      (route) => false
+              );
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
       ),
     );
   }
