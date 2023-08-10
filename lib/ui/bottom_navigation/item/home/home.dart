@@ -30,7 +30,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage>  {
 
   DateTimeRange? selectedDate;
-  String dropdownValue = 'Bulan Ini';
   TextEditingController _searchController = TextEditingController();
   bool isFinish = false;
   late PesananDriverBloc pesananDriverBloc;
@@ -93,9 +92,9 @@ class _HomePageState extends State<HomePage>  {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                CircleAvatar(
+                                const CircleAvatar(
                                   radius: 24,
-                                  backgroundImage: const NetworkImage(
+                                  backgroundImage: NetworkImage(
                                       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
                                 ),
                                 const SizedBox(
@@ -119,9 +118,9 @@ class _HomePageState extends State<HomePage>  {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                CircleAvatar(
+                                const CircleAvatar(
                                   radius: 24,
-                                  backgroundImage: const NetworkImage(
+                                  backgroundImage: NetworkImage(
                                       'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
                                 ),
                                 const SizedBox(
@@ -154,58 +153,17 @@ class _HomePageState extends State<HomePage>  {
                             fontSize: 16
                         ),
                       ),
-                      DropdownButton<String>(
-                          menuMaxHeight: 150,
-                          value: dropdownValue,
-                          iconEnabledColor: ColorValue.neutralColor,
-                          icon: const Icon(Icons.keyboard_arrow_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              dropdownValue = newValue!;
-                              if (dropdownValue == "Bulan Ini") {}
-                              else if (dropdownValue == "3 Bulan Terakhir") {}
-                              else if (dropdownValue == "6 Bulan Terakhir") {}
-                              else if (dropdownValue == "1 Tahun Terakhir") {}
-                            });
-                          },
-                          underline: Container(
-                            height: 0,
-                            color: Colors.transparent,
-                          ),
-                          autofocus: true,
-                          items: _months
-                              .map<DropdownMenuItem<String>>(
-                                  (String value) {
-                                return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,
-                                      style: textTheme.subtitle1!.copyWith(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14,
-                                          color: ColorValue.neutralColor),)
-                                );
-                              }).toList(),
-                          onTap: () {
-                            dropdownValue = dropdownValue;
-                            if (dropdownValue == "Kustomisasi") {
-                              showDatePickerDialog(context, 1);
-                            } else {
-                              dropdownValue = dropdownValue;
-                              selectedDate = selectedDate;
-                            }
-                          }),
                     ],
                   ),
                   const SizedBox(height: 5,),
                   GridView.count(
                     controller: ScrollController(keepScrollOffset: false),
                     shrinkWrap: true,
-                    crossAxisCount: 3,
-                    childAspectRatio: 0.8,
+                    crossAxisCount: 2,
+                    childAspectRatio: 1.8,
                     children: [
                       card_analytic(ColorValue.secondaryColor, "Total mengantar", '17'),
-                      card_analytic(ColorValue.tertiaryColor, "Pengunjung toko", '120.000'),
-                      card_analytic(const Color(0xFFEE6C4D), "Rating Toko", '4.5'),
+                      card_analytic(const Color(0xFFEE6C4D), "Jarak perjalanan", '4.5'),
                     ],
                   ),
                   const SizedBox(height: 20,),
@@ -624,7 +582,7 @@ class _HomePageState extends State<HomePage>  {
         borderRadius: BorderRadius.circular(15),
       ),
       child: Container(
-          padding: const EdgeInsets.only(left: 10, top: 10),
+          padding: const EdgeInsets.all(10),
           height: 100,
           width: 100,
           child: Column(
@@ -637,9 +595,7 @@ class _HomePageState extends State<HomePage>  {
                     fontSize: 20,
                     color: Colors.white),
               ),
-              const SizedBox(
-                height: 5,
-              ),
+              const Spacer(),
               Text(
                 title,
                 style: Theme.of(context).textTheme.subtitle1!.copyWith(
@@ -652,36 +608,6 @@ class _HomePageState extends State<HomePage>  {
     );
   }
 
-  Widget dropDown_Driver() {
-    return DropdownButton<String>(
-      value: dropdownValue,
-      icon: const Icon(Icons.arrow_drop_down),
-      iconSize: 24,
-      elevation: 16,
-      style: Theme.of(context).textTheme.subtitle1!.copyWith(
-        fontWeight: FontWeight.w800,
-        fontSize: 16,
-        color: ColorValue.neutralColor,
-      ),
-      onChanged: (String? newValue) {
-        setState(() {
-          dropdownValue = newValue!;
-        });
-      },
-      items: _months.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(value: value, child: Text(value));
-      }).toList(),
-    );
-  }
-
-  final List<String> _months = [
-    "Bulan Ini",
-    "3 Bulan Terakhir",
-    "6 Bulan Terakhir",
-    "1 Tahun Terakhir",
-    "Semua",
-    "Kustomisasi",
-  ];
 
   Future<void> showDatePickerDialog(BuildContext context, int variableIndex) async {
     //date range picker dialog
@@ -808,9 +734,9 @@ class _HomePageState extends State<HomePage>  {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 24,
-            backgroundImage: const NetworkImage(
+            backgroundImage: NetworkImage(
                 'https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg'),
           ),
           const SizedBox(
