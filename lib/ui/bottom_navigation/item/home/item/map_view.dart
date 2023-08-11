@@ -140,19 +140,20 @@ class _MapViewDriverState extends State<MapViewDriver> {
                                 icon: const Icon(Icons.location_pin, color: ColorValue.primaryColor,),
                                 onPressed: () {
                                   print("Marker $i tapped!");
-                                    _isMapViewAddress = true;
                                     _currentPosition = LatLng(pesananDriverModel.data[i].userLat, pesananDriverModel.data[i].userLong);
                                     mapController.move(_currentPosition, 14.0);
                                     setState(() {
                                       selectedIndex = i;
+                                      print(selectedIndex);
                                       if (pageController.hasClients) {
+                                        print("sifcjhbdhvbdfhjvbhdjsknvhbdnvsnqkddvzsnmdcxbvnmdb vhjc gdhfgdhjggdfhjgv dhjghdfg hdfghjdfghjdfghhjdfghjdfxhghjfghjgbhbhjfg hbjgh");
                                         pageController.animateToPage(
                                           selectedIndex,
                                           duration: const Duration(milliseconds: 400),
                                           curve: Curves.easeInOut,
                                         );
-                                        print(i);
                                       }
+                                      _isMapViewAddress = true;
                                     });
                                 },
                               ),
@@ -161,7 +162,6 @@ class _MapViewDriverState extends State<MapViewDriver> {
                       ),
                     ],
                   ),
-                  if (_isMapViewAddress == true)
                     Positioned(
                       left: 0,
                       right: 0,
@@ -178,7 +178,7 @@ class _MapViewDriverState extends State<MapViewDriver> {
                           });
                         },
                         itemBuilder: (context, index) {
-                          return Container(
+                          return _isMapViewAddress ? Container(
                             margin: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
@@ -242,7 +242,7 @@ class _MapViewDriverState extends State<MapViewDriver> {
                                 ),
                               ],
                             ),
-                          );
+                          ) : SizedBox();
                         },
                       ),
                     )

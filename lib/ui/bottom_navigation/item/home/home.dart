@@ -1,11 +1,15 @@
 import 'package:driver_kangsayur/common/color_value.dart';
 import 'package:driver_kangsayur/tracking/tracking_driver.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/bloc/analisa_bloc.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/bloc/pesanan_driver_bloc.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/event/analisa_event.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/event/pesanan_driver_model.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/item/map_view.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/model/pesanan_driver_model.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/analisa_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/home_repository.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/repository/konfirmasi_driver_repository.dart';
+import 'package:driver_kangsayur/ui/bottom_navigation/item/home/state/analisa_state.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/home/state/pesanan_driver_state.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/profile/bloc/profile_driver_bloc.dart';
 import 'package:driver_kangsayur/ui/bottom_navigation/item/profile/event/profile_driver_event.dart';
@@ -33,12 +37,14 @@ class _HomePageState extends State<HomePage>  {
   TextEditingController _searchController = TextEditingController();
   bool isFinish = false;
   late PesananDriverBloc pesananDriverBloc;
+  late AnalisaPageBloc analisaPageBloc;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     pesananDriverBloc = PesananDriverBloc(konfirmasiDriverRepository: KonfirmasiRepository(), pesananDriverRepository: PesananDriverRepository());
+    analisaPageBloc = AnalisaPageBloc(analisaPageRepository: AnalisaRepository());
   }
 
 
@@ -142,29 +148,59 @@ class _HomePageState extends State<HomePage>  {
                     ),
                   ),
                   const SizedBox(height: 20,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Analisa',
-                        style: textTheme.headline5!.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: ColorValue.secondaryColor,
-                            fontSize: 16
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5,),
-                  GridView.count(
-                    controller: ScrollController(keepScrollOffset: false),
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    childAspectRatio: 1.8,
-                    children: [
-                      card_analytic(ColorValue.secondaryColor, "Total mengantar", '17'),
-                      card_analytic(const Color(0xFFEE6C4D), "Jarak perjalanan", '4.5'),
-                    ],
+                  BlocProvider(
+                    create: (context) => analisaPageBloc..add(GetAnalisa()),
+                    child: BlocBuilder<AnalisaPageBloc, AnalisaState>(
+                      builder: (context, state) {
+                        if(state is AnalisaLoading){
+                          return shimmerAnalisa();
+                        }else if (state is AnalisaSuccess){
+                          final analisaModel = state.analisaModel;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Analisa',
+                                    style: textTheme.headline5!.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                        color: ColorValue.secondaryColor,
+                                        fontSize: 16
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5,),
+                              GridView.count(
+                                controller: ScrollController(keepScrollOffset: false),
+                                shrinkWrap: true,
+                                crossAxisCount: 2,
+                                childAspectRatio: 1.8,
+                                children: [
+                                  card_analytic(ColorValue.secondaryColor, "Total mengantar", analisaModel.data.jumlahMengatar.toString()),
+                                  card_analytic(const Color(0xFFEE6C4D), "Jarak perjalanan", "${analisaModel.data.totalJarak.toStringAsFixed(1)} Km"),
+                                ],
+                              ),
+                            ],
+                          );
+                        }else if (state is AnalisaFailure){
+                          print(state.errorMessage);
+                          return Center(
+                            child: Text(
+                              state.errorMessage,
+                              style: textTheme.subtitle1!.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                  color: ColorValue.hintColor),
+                            ),
+                          );
+                        }else {
+                          return shimmerAnalisa();
+                        }
+                      },
+                    )
                   ),
                   const SizedBox(height: 20,),
                   BlocProvider(
@@ -389,17 +425,12 @@ class _HomePageState extends State<HomePage>  {
                                                               pesananDriverModel.data[index].barangPesanan[0].storeId.toString(),
                                                               pesananDriverModel.data[index].barangPesanan[0].transactionCode.toString(),
                                                             ));
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                builder: (context) => TrackingDriver(
-                                                                  transactionCode : pesananDriverModel.data[index].barangPesanan[0].transactionCode.toString(),
-                                                                  latUser:pesananDriverModel.data[index].userLat,
-                                                                  longUser: pesananDriverModel.data[index].userLong,
-                                                                  detailpesananDriverModel: pesananDriverModel.data[index],
-                                                                ),
-                                                              ),
-                                                            );
+                                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TrackingDriver(
+                                                              transactionCode : pesananDriverModel.data[index].barangPesanan[0].transactionCode.toString(),
+                                                              latUser:pesananDriverModel.data[index].userLat,
+                                                              longUser: pesananDriverModel.data[index].userLong,
+                                                              detailpesananDriverModel: pesananDriverModel.data[index],
+                                                            ),), (route) => false);
                                                           },);
                                                         },
                                                         style: ElevatedButton.styleFrom(
@@ -574,6 +605,59 @@ class _HomePageState extends State<HomePage>  {
     );
   }
 
+  Widget shimmerAnalisa(){
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 20,
+            width: 100,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5),
+            ),
+          ),
+          const SizedBox(height: 10,),
+          GridView.count(
+            controller: ScrollController(keepScrollOffset: false),
+            shrinkWrap: true,
+            crossAxisCount: 2,
+            childAspectRatio: 1.8,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(right: 10),
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: ColorValue.hintColor,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+              Container(
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color: ColorValue.hintColor,
+                    width: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget card_analytic(Color color, String title, String value) {
     return Card(
@@ -634,6 +718,8 @@ class _HomePageState extends State<HomePage>  {
 
   Future<void> _refreshPesananDriverPage() async {
     pesananDriverBloc.add(GetPesanan());
+    analisaPageBloc.add(GetAnalisa());
+    ProfileDriverBloc(profileDriverRepository: ProfileDriverRepository(), logoutRepository: LogoutRepository()).add(GetProfileDriver());
   }
 
   Widget shimmerList(){
