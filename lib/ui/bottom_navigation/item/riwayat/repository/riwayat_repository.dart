@@ -4,16 +4,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 abstract class RiwayatPageRepository {
-  Future<RiwayatModel> riwyayatDriver();
+  Future<RiwayatModel> riwyayatDriver(String filterid);
 }
 
 class RiwayatRepository extends RiwayatPageRepository {
   @override
-  Future<RiwayatModel> riwyayatDriver() async{
+  Future<RiwayatModel> riwyayatDriver(String filterid) async{
     SharedPreferences pref = await SharedPreferences.getInstance();
     String? token = pref.getString('token');
 
-    final responseProduk = await http.get(Uri.parse("${AppConstants.baseUrl}driver/riwayat/selesai/diantar"),
+    final responseProduk = await http.get(Uri.parse("${AppConstants.baseUrl}driver/riwayat/selesai/diantar?filterId=$filterid"),
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',

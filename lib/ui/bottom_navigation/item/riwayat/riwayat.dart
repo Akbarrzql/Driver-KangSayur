@@ -33,7 +33,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     return BlocProvider(
-      create: (context) => RiwayatDriverBloc(riwayatRepository: RiwayatRepository())..add(GetRiwayat()),
+      create: (context) => RiwayatDriverBloc(riwayatRepository: RiwayatRepository())..add(GetRiwayat("0")),
       child: BlocBuilder<RiwayatDriverBloc, RiwayatState>(
         builder: (context, state) {
           if(state is RiwayatLoading){
@@ -86,7 +86,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                               ),
                               GestureDetector(
                                 onTap: (){
-                                  bottomSheet();
+                                  bottomSheet(context);
                                 },
                                 child: Container(
                                   height: 50,
@@ -133,7 +133,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
                             itemCount: filteredRiwayatDriver.length,
                             itemBuilder: (BuildContext context, int index) {
                               return CardVerifikasi(
-                                jenisVerifikasiProduk: filteredRiwayatDriver[index].kategori,
                                 tanggalVerifikasiProduk: filteredRiwayatDriver[index].dipesan,
                                 namaVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].namaProduk,
                                 descVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].variantDesc,
@@ -205,7 +204,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                               ),
                               GestureDetector(
                                 onTap: (){
-                                  bottomSheet();
+                                  bottomSheet(context);
                                 },
                                 child: Container(
                                   height: 50,
@@ -253,7 +252,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
                             itemCount: filteredRiwayatDriver.length,
                             itemBuilder: (BuildContext context, int index) {
                               return CardVerifikasi(
-                                jenisVerifikasiProduk: filteredRiwayatDriver[index].kategori,
                                 tanggalVerifikasiProduk: filteredRiwayatDriver[index].dipesan,
                                 namaVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].namaProduk,
                                 descVerifikasiProduk: filteredRiwayatDriver[index].barangPesanan[0].variantDesc,
@@ -279,7 +277,15 @@ class _RiwayatPageState extends State<RiwayatPage> {
                 )
             );
           } else if(state is RiwayatError){
-            return shimmerRiwayat();
+            return Center(
+              child: Text(
+                state.errorMessage,
+                style: textTheme.headline6!.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
+            );
           } else {
             return shimmerRiwayat();
           }
@@ -288,7 +294,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
     );
   }
   
-  void bottomSheet(){
+  void bottomSheet(BuildContext context){
+    final mainContext = context;
     final textTheme = Theme.of(context).textTheme;
     showModalBottomSheet(
         isScrollControlled: true,
@@ -361,7 +368,21 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         ],
                       ),
                       const SizedBox(height: 10,),
-                      main_button('Terapkan', context, onPressed: (){}),
+                      main_button('Terapkan', context, onPressed: () {
+                        setState(() {
+                          print(_isCheckbox3);
+                          if (_isCheckbox2 == false) {
+                            BlocProvider.of<RiwayatDriverBloc>(mainContext).add(GetRiwayat("0"));
+                          } else if (_isCheckbox3 == false) {
+                            BlocProvider.of<RiwayatDriverBloc>(mainContext).add(GetRiwayat("1"));
+                          } else if (_isCheckbox4 == false) {
+                            BlocProvider.of<RiwayatDriverBloc>(mainContext).add(GetRiwayat("2"));
+                          } else if (_isCheckbox5 == false) {
+                            BlocProvider.of<RiwayatDriverBloc>(mainContext).add(GetRiwayat("3"));
+                          }
+                        });
+                        Navigator.pop(context);
+                      }),
                     ],
                   ),
                 )
@@ -418,7 +439,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
                     ),
                     GestureDetector(
                       onTap: (){
-                        bottomSheet();
+                        bottomSheet(context);
                       },
                       child: Container(
                         height: 50,
@@ -445,7 +466,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
                   itemCount: 3,
                   itemBuilder: (BuildContext context, int index) {
                     return CardVerifikasi(
-                      jenisVerifikasiProduk: 'Bahan Pokok',
                       tanggalVerifikasiProduk: '2021-08-20',
                       namaVerifikasiProduk: 'Bawang Merah',
                       descVerifikasiProduk: 'Bawang merah ukuran besar',

@@ -45,12 +45,11 @@ class Datum2 {
   final double tokoLong;
   final int userId;
   final String dipesan;
-  final String kategori;
   final List<BarangPesanan> barangPesanan;
   final Tagihan tagihan;
   final double total;
 
-  Datum2 ({
+  Datum2({
     required this.userProfile,
     required this.namaPemesan,
     required this.nomorTelfon,
@@ -62,7 +61,6 @@ class Datum2 {
     required this.tokoLong,
     required this.userId,
     required this.dipesan,
-    required this.kategori,
     required this.barangPesanan,
     required this.tagihan,
     required this.total,
@@ -80,7 +78,6 @@ class Datum2 {
     tokoLong: json["toko_long"]?.toDouble(),
     userId: json["user_id"],
     dipesan: json["dipesan"],
-    kategori: json["kategori"],
     barangPesanan: List<BarangPesanan>.from(json["barang_pesanan"].map((x) => BarangPesanan.fromJson(x))),
     tagihan: Tagihan.fromJson(json["tagihan"]),
     total: json["total"]?.toDouble(),
@@ -98,7 +95,6 @@ class Datum2 {
     "toko_long": tokoLong,
     "user_id": userId,
     "dipesan": dipesan,
-    "kategori": kategori,
     "barang_pesanan": List<dynamic>.from(barangPesanan.map((x) => x.toJson())),
     "tagihan": tagihan.toJson(),
     "total": total,
@@ -116,6 +112,7 @@ class BarangPesanan {
   final int alamatId;
   final String statusDiulas;
   final String status;
+  final int discount;
   final DateTime createdAt;
   final DateTime updatedAt;
   final String variantImg;
@@ -124,7 +121,7 @@ class BarangPesanan {
   final int stok;
   final int hargaVariant;
   final String namaProduk;
-  final double? rating;
+  final double rating;
   final int kategoriId;
   final int tokoId;
   final int ulasanId;
@@ -142,6 +139,7 @@ class BarangPesanan {
     required this.alamatId,
     required this.statusDiulas,
     required this.status,
+    required this.discount,
     required this.createdAt,
     required this.updatedAt,
     required this.variantImg,
@@ -169,6 +167,7 @@ class BarangPesanan {
     alamatId: json["alamat_id"],
     statusDiulas: json["status_diulas"],
     status: json["status"],
+    discount: json["discount"],
     createdAt: DateTime.parse(json["created_at"]),
     updatedAt: DateTime.parse(json["updated_at"]),
     variantImg: json["variant_img"],
@@ -196,6 +195,7 @@ class BarangPesanan {
     "alamat_id": alamatId,
     "status_diulas": statusDiulas,
     "status": status,
+    "discount": discount,
     "created_at": createdAt.toIso8601String(),
     "updated_at": updatedAt.toIso8601String(),
     "variant_img": variantImg,

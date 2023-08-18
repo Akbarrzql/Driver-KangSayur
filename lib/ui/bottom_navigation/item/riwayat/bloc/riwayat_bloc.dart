@@ -15,7 +15,7 @@ class RiwayatDriverBloc extends Bloc<RiwayatEvent, RiwayatState>{
     on<GetRiwayat>((event, emit) async {
       emit(RiwayatLoading());
       try {
-        var riwayatModel = await riwayatRepository.riwyayatDriver();
+        var riwayatModel = await riwayatRepository.riwyayatDriver(event.filterId);
         _riwayatModel = riwayatModel;
         emit(RiwayatSuccess(riwayatModel));
       } catch (e) {
