@@ -11,6 +11,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class PesananDriverBloc extends Bloc<PesananPageEvent, PesananDriverPageState>{
   final PesananDriverRepository pesananDriverRepository;
   final KonfirmasiRepository konfirmasiDriverRepository;
+  List<Datum> _filteredHome = [];
+  PesananDriverModel? _pesananDriverModel;
 
   PesananDriverBloc({required this.pesananDriverRepository, required this.konfirmasiDriverRepository}) : super(InitialPesananDriverPageState()) {
     on<GetPesanan>((event, emit) async {
@@ -30,4 +32,18 @@ class PesananDriverBloc extends Bloc<PesananPageEvent, PesananDriverPageState>{
         emit(PesananDriverPageError(e.toString()));
       }
     });
+
+    on<FilterPesanan>((event, emit) {
+      final keyword = event.keyword.toLowerCase();
+
+      if (_pesananDriverModel != null) {
+        final filteredData = _pesananDriverModel!.data.where((produk) {
+          final namaPemesan = produk.namaPemesan.toLowerCase();
+          return namaPemesan.contains(keyword);
+        }).toList();
+
+        emit(FilteredHome(filteredData));
+      }
+    });
+
   }}

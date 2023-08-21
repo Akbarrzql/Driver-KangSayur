@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class ModalCheckbox extends StatefulWidget {
   ModalCheckbox({Key? key, required this.isCheckbox, required this.name}) : super(key: key);
-  bool isCheckbox = false;
+  bool isCheckbox;
   final String name;
 
   @override
@@ -33,4 +33,5 @@ class _ModalCheckboxState extends State<ModalCheckbox> {
     );
   }
 }
+
 

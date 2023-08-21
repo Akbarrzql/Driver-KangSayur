@@ -33,6 +33,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>  {
 
+  List<Datum> _filteredHome = [];
   DateTimeRange? selectedDate;
   TextEditingController _searchController = TextEditingController();
   bool isFinish = false;
@@ -211,6 +212,7 @@ class _HomePageState extends State<HomePage>  {
                             return shimmerList();
                           } else if (state is PesananDriverPageLoaded){
                             final pesananDriverModel = state.pesananDriverModel;
+                            _filteredHome = pesananDriverModel.data;
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -234,7 +236,7 @@ class _HomePageState extends State<HomePage>  {
                                           color: ColorValue.hintColor),
                                     ),
                                     Text(
-                                      pesananDriverModel.data.length.toString(),
+                                      _filteredHome.length.toString(),
                                       style: textTheme.subtitle1!.copyWith(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 14,
@@ -258,6 +260,9 @@ class _HomePageState extends State<HomePage>  {
                                       ),
                                       //child textfield
                                       child: TextField(
+                                        onChanged: (value) {
+                                          context.read<PesananDriverBloc>().add(FilterPesanan(value));
+                                        },
                                         controller: _searchController,
                                         decoration: InputDecoration(
                                           prefixIcon: const Icon(
@@ -306,7 +311,7 @@ class _HomePageState extends State<HomePage>  {
                                 ListView.builder(
                                   shrinkWrap: true,
                                   physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: pesananDriverModel.data.length,
+                                  itemCount: _filteredHome.length,
                                   itemBuilder: (context, index) {
                                     return Container(
                                       height: 185,
@@ -345,7 +350,7 @@ class _HomePageState extends State<HomePage>  {
                                                       CircleAvatar(
                                                         radius: 24,
                                                         backgroundImage: NetworkImage(
-                                                            'https://kangsayur.nitipaja.online/${pesananDriverModel.data[index].userProfile}'),
+                                                            'https://kangsayur.nitipaja.online/${_filteredHome[index].userProfile}'),
                                                       ),
                                                       const SizedBox(
                                                         width: 10,
@@ -354,7 +359,7 @@ class _HomePageState extends State<HomePage>  {
                                                         crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
                                                           Text(
-                                                            pesananDriverModel.data[0].namaPemesan,
+                                                            _filteredHome[0].namaPemesan,
                                                             style: textTheme.subtitle1!.copyWith(
                                                                 fontWeight: FontWeight.w600,
                                                                 fontSize: 16,
@@ -373,7 +378,7 @@ class _HomePageState extends State<HomePage>  {
                                                                     color: ColorValue.neutralColor),
                                                               ),
                                                               Text(
-                                                                pesananDriverModel.data[0].dipesan,
+                                                                _filteredHome[0].dipesan,
                                                                 style: textTheme.subtitle1!.copyWith(
                                                                     fontWeight: FontWeight.w500,
                                                                     fontSize: 14,
@@ -390,7 +395,7 @@ class _HomePageState extends State<HomePage>  {
                                                               Container(
                                                                 width: 200,
                                                                 child: Text(
-                                                                  pesananDriverModel.data[index].barangPesanan[0].namaProduk,
+                                                                  _filteredHome[index].barangPesanan[0].namaProduk,
                                                                   style: textTheme.subtitle1!.copyWith(
                                                                       fontWeight: FontWeight.w500,
                                                                       fontSize: 14,
@@ -400,7 +405,7 @@ class _HomePageState extends State<HomePage>  {
                                                               Container(
                                                                 width: MediaQuery.of(context).size.width * 0.09,
                                                                 child: Text(
-                                                                  pesananDriverModel.data[index].barangPesanan[0].jumlahPembelian.toString(),
+                                                                  _filteredHome[index].barangPesanan[0].jumlahPembelian.toString(),
                                                                   style: textTheme.subtitle1!.copyWith(
                                                                       fontWeight: FontWeight.w500,
                                                                       fontSize: 14,
@@ -421,15 +426,15 @@ class _HomePageState extends State<HomePage>  {
                                                         onPressed: () {
                                                           bottom_sheet(context, navigate: () {
                                                             pesananDriverBloc.add(GetKonfirmasi(
-                                                              pesananDriverModel.data[index].barangPesanan[0].userId.toString(),
-                                                              pesananDriverModel.data[index].barangPesanan[0].storeId.toString(),
-                                                              pesananDriverModel.data[index].barangPesanan[0].transactionCode.toString(),
+                                                              _filteredHome[index].barangPesanan[0].userId.toString(),
+                                                              _filteredHome[index].barangPesanan[0].storeId.toString(),
+                                                              _filteredHome[index].barangPesanan[0].transactionCode.toString(),
                                                             ));
                                                             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TrackingDriver(
-                                                              transactionCode : pesananDriverModel.data[index].barangPesanan[0].transactionCode.toString(),
-                                                              latUser:pesananDriverModel.data[index].userLat,
-                                                              longUser: pesananDriverModel.data[index].userLong,
-                                                              detailpesananDriverModel: pesananDriverModel.data[index],
+                                                              transactionCode : _filteredHome[index].barangPesanan[0].transactionCode.toString(),
+                                                              latUser:_filteredHome[index].userLat,
+                                                              longUser: _filteredHome[index].userLong,
+                                                              detailpesananDriverModel: _filteredHome[index],
                                                             ),), (route) => false);
                                                           },);
                                                         },
@@ -462,7 +467,7 @@ class _HomePageState extends State<HomePage>  {
                                                                 locale: 'id',
                                                                 symbol: 'Rp ',
                                                                 decimalDigits: 0)
-                                                                .format(pesananDriverModel.data[index].total),
+                                                                .format(_filteredHome[index].total),
                                                             style: textTheme.subtitle1!.copyWith(
                                                                 fontWeight: FontWeight.w500,
                                                                 fontSize: 14,
@@ -483,7 +488,285 @@ class _HomePageState extends State<HomePage>  {
                                 )
                               ],
                             );
-                          } else if (state is PesananDriverPageError){
+                          }else if(state is FilteredHome){
+                            _filteredHome = state.filteredHome;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Anterin',
+                                  style: textTheme.headline5!.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                      color: ColorValue.secondaryColor,
+                                      fontSize: 16
+                                  ),
+                                ),
+                                const SizedBox(height: 5,),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Total barang yang harus diantar: ',
+                                      style: textTheme.subtitle1!.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14,
+                                          color: ColorValue.hintColor),
+                                    ),
+                                    Text(
+                                      _filteredHome.length.toString(),
+                                      style: textTheme.subtitle1!.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                          color: ColorValue.neutralColor),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      height: 50,
+                                      width: MediaQuery.of(context).size.width * 0.7,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                          color: ColorValue.hintColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      //child textfield
+                                      child: TextField(
+                                        onChanged: (value) {
+                                          context.read<PesananDriverBloc>().add(FilterPesanan(value));
+                                        },
+                                        controller: _searchController,
+                                        decoration: InputDecoration(
+                                          prefixIcon: const Icon(
+                                            Icons.search,
+                                            color: ColorValue.hintColor,
+                                          ),
+                                          hintText: 'Cari Nama Pemesan',
+                                          hintStyle: textTheme.subtitle1!.copyWith(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 14,
+                                              color: ColorValue.hintColor),
+                                          border: InputBorder.none,
+                                          contentPadding: const EdgeInsets.only(left: 10),
+                                        ),
+                                        textAlign: TextAlign.left,
+                                        textAlignVertical: TextAlignVertical.center,
+                                      ),
+                                    ),
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(5),
+                                        border: Border.all(
+                                          color: ColorValue.hintColor,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const MapViewDriver(),
+                                            ),
+                                          );
+                                        },
+                                        child: const Icon(
+                                          Icons.map_outlined,
+                                          color: ColorValue.hintColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: _filteredHome.length,
+                                  itemBuilder: (context, index) {
+                                    return Container(
+                                      height: 185,
+                                      width: MediaQuery.of(context).size.width,
+                                      decoration: BoxDecoration(
+                                        color: ColorValue.primaryColor,
+                                        borderRadius: BorderRadius.circular(15),
+                                        border: Border.all(
+                                          color: ColorValue.hintColor,
+                                          width: 0.5,
+                                        ),
+                                      ),
+                                      margin: const EdgeInsets.only(top: 10),
+                                      child: Container(
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              height: 125,
+                                              width: MediaQuery.of(context).size.width,
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.circular(15),
+                                                border: Border.all(
+                                                  color: ColorValue.hintColor,
+                                                  width: 0.5,
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      CircleAvatar(
+                                                        radius: 24,
+                                                        backgroundImage: NetworkImage(
+                                                            'https://kangsayur.nitipaja.online/${_filteredHome[index].userProfile}'),
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text(
+                                                            _filteredHome[0].namaPemesan,
+                                                            style: textTheme.subtitle1!.copyWith(
+                                                                fontWeight: FontWeight.w600,
+                                                                fontSize: 16,
+                                                                color: ColorValue.neutralColor),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                'Dipesan :',
+                                                                style: textTheme.subtitle1!.copyWith(
+                                                                    fontWeight: FontWeight.w600,
+                                                                    fontSize: 14,
+                                                                    color: ColorValue.neutralColor),
+                                                              ),
+                                                              Text(
+                                                                _filteredHome[0].dipesan,
+                                                                style: textTheme.subtitle1!.copyWith(
+                                                                    fontWeight: FontWeight.w500,
+                                                                    fontSize: 14,
+                                                                    color: ColorValue.hintColor),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 5,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              const SizedBox(height: 20),
+                                                              Container(
+                                                                width: 200,
+                                                                child: Text(
+                                                                  _filteredHome[index].barangPesanan[0].namaProduk,
+                                                                  style: textTheme.subtitle1!.copyWith(
+                                                                      fontWeight: FontWeight.w500,
+                                                                      fontSize: 14,
+                                                                      color: ColorValue.neutralColor),
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                width: MediaQuery.of(context).size.width * 0.09,
+                                                                child: Text(
+                                                                  _filteredHome[index].barangPesanan[0].jumlahPembelian.toString(),
+                                                                  style: textTheme.subtitle1!.copyWith(
+                                                                      fontWeight: FontWeight.w500,
+                                                                      fontSize: 14,
+                                                                      color: ColorValue.neutralColor),
+                                                                  textAlign: TextAlign.right,
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 55,),
+                                                  Row(
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          bottom_sheet(context, navigate: () {
+                                                            pesananDriverBloc.add(GetKonfirmasi(
+                                                              _filteredHome[index].barangPesanan[0].userId.toString(),
+                                                              _filteredHome[index].barangPesanan[0].storeId.toString(),
+                                                              _filteredHome[index].barangPesanan[0].transactionCode.toString(),
+                                                            ));
+                                                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => TrackingDriver(
+                                                              transactionCode : _filteredHome[index].barangPesanan[0].transactionCode.toString(),
+                                                              latUser:_filteredHome[index].userLat,
+                                                              longUser: _filteredHome[index].userLong,
+                                                              detailpesananDriverModel: _filteredHome[index],
+                                                            ),), (route) => false);
+                                                          },);
+                                                        },
+                                                        style: ElevatedButton.styleFrom(
+                                                          primary: Colors.white,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius: BorderRadius.circular(5),
+                                                          ),
+                                                        ),
+                                                        child: Text(
+                                                          'Antar',
+                                                          style: textTheme.subtitle1!.copyWith(
+                                                              fontWeight: FontWeight.w500,
+                                                              fontSize: 14,
+                                                              color: ColorValue.neutralColor),
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            'Total : ',
+                                                            style: textTheme.subtitle1!.copyWith(
+                                                                fontWeight: FontWeight.w500,
+                                                                fontSize: 14,
+                                                                color: Colors.white),
+                                                          ),
+                                                          Text(
+                                                            NumberFormat.currency(
+                                                                locale: 'id',
+                                                                symbol: 'Rp ',
+                                                                decimalDigits: 0)
+                                                                .format(_filteredHome[index].total),
+                                                            style: textTheme.subtitle1!.copyWith(
+                                                                fontWeight: FontWeight.w500,
+                                                                fontSize: 14,
+                                                                color: Colors.white),
+                                                          ),
+                                                        ],
+                                                      )
+                                                    ],
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                              ],
+                            );
+                          }
+                          else if (state is PesananDriverPageError){
                             return shimmerList();
                           } else {
                             return shimmerList();

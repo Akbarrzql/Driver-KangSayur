@@ -16,6 +16,12 @@ class PesananDriverPageLoaded extends PesananDriverPageState {
   PesananDriverPageLoaded(this.pesananDriverModel);
 }
 
+class FilteredHome extends PesananDriverPageState{
+  final List<Datum> filteredHome;
+
+  FilteredHome(this.filteredHome);
+}
+
 class KonfirmasiDriverPageLoaded extends PesananDriverPageState {
   final KonfirmasiPesananDriverModel konfirmasiPesananDriverModel;
 

@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../../common/color_value.dart';
 
 class CardVerifikasi extends StatelessWidget {
-  CardVerifikasi({Key? key, required this.jenisVerifikasiProduk, required this.tanggalVerifikasiProduk, required this.namaVerifikasiProduk , required this.descVerifikasiProduk,required this.gambarVerifikasiProduk, required this.statusVerifikasiProduk, required this.onPressed}) : super(key: key);
-  final String jenisVerifikasiProduk;
+  CardVerifikasi({Key? key,required this.tanggalVerifikasiProduk, required this.namaVerifikasiProduk , required this.descVerifikasiProduk,required this.gambarVerifikasiProduk, required this.statusVerifikasiProduk, required this.onPressed}) : super(key: key);
   final String tanggalVerifikasiProduk;
   final String namaVerifikasiProduk;
   final String descVerifikasiProduk;
@@ -40,19 +39,10 @@ class CardVerifikasi extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            jenisVerifikasiProduk,
-                            style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                              color: ColorValue.neutralColor,
-                            ),
-                          ),
-                          const SizedBox(height: 5,),
-                          Text(
                             tanggalVerifikasiProduk,
                             style: Theme.of(context).textTheme.subtitle1!.copyWith(
                               fontWeight: FontWeight.w400,
-                              fontSize: 10,
+                              fontSize: 14,
                               color: ColorValue.neutralColor,
                             ),
                           ),
