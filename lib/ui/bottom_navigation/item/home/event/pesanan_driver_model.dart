@@ -12,3 +12,9 @@ class GetKonfirmasi extends PesananPageEvent {
 
   GetKonfirmasi(this.transactionCode, this.userId, this.storeId);
 }
+
+class FilterPesanan extends PesananPageEvent {
+  final String keyword;
+
+  FilterPesanan(this.keyword);
+}

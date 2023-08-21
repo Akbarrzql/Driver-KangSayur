@@ -10,14 +10,6 @@ class ModalCheckbox extends StatefulWidget {
 }
 
 class _ModalCheckboxState extends State<ModalCheckbox> {
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    widget.isCheckbox = false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -26,7 +18,6 @@ class _ModalCheckboxState extends State<ModalCheckbox> {
           value: widget.isCheckbox,
           onChanged: (value) {
             setState(() {
-              print(value);
               widget.isCheckbox = value!;
             });
           },
